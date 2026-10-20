@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PotholePoint Prototype</title>
+<style>
+:root{--bg:#e8ecef;--card:#fff;--ink:#1b2126;--mut:#5f6b76;--line:#d3dae0;--acc:#f7c600;--zone:#d9e0e5;--crit:#cf3a34;--high:#e58a10;--mod:#1f7a70;--done:#7b8590;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15181b;--card:#1f2428;--ink:#eceef0;--mut:#a0a9b2;--line:#303840;--zone:#2a3138}}
+:root[data-theme="dark"]{--bg:#15181b;--card:#1f2428;--ink:#eceef0;--mut:#a0a9b2;--line:#303840;--zone:#2a3138}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.road{height:7px;background:repeating-linear-gradient(90deg,var(--acc) 0 30px,transparent 30px 52px)}
+.wrap{max-width:1100px;margin:0 auto;padding:0 16px 28px}
+h1{font-size:30px;letter-spacing:-.6px;margin:16px 0 2px}
+h1 span{background:var(--acc);color:#1b2126;padding:0 9px;border-radius:6px;margin-left:5px}
+h2{font-size:16px;margin:0 0 10px}
+.mut{color:var(--mut)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+.tabs{display:flex;gap:8px;margin:14px 0}
+.tabs button{flex:1;padding:10px 6px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;font:inherit;font-weight:600;cursor:pointer}
+.tabs button.on{background:var(--acc);border-color:var(--acc);color:#1b2126}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.grid{display:grid;grid-template-columns:1.4fr 1fr;gap:14px;margin-bottom:14px}
+@media(max-width:820px){.grid{grid-template-columns:1fr}}
+.map{width:100%;height:auto;border-radius:10px;background:var(--bg);display:block}
+.click{cursor:crosshair}
+.lb{display:block;font-weight:600;font-size:13px;margin:12px 0 6px}
+.seg{display:flex;gap:8px}.seg label{flex:1;position:relative}.seg input{position:absolute;opacity:0}
+.seg span{display:block;text-align:center;padding:8px 4px;border:1.5px solid var(--line);border-radius:10px;cursor:pointer;font-weight:600}
+.seg small{display:block;font-weight:400;color:var(--mut);font-size:11px}
+.seg input:checked+span{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 25%,transparent)}
+.seg input:focus-visible+span{outline:2px solid var(--ink)}
+select,input[type=text],textarea{width:100%;padding:9px;border:1.5px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);font:inherit}
+#fw{width:auto}
+#pv{max-width:100%;max-height:120px;border-radius:8px;margin-top:8px}
+.btn{margin-top:14px;width:100%;background:var(--acc);color:#1b2126;border:0;border-radius:10px;padding:11px 18px;font:inherit;font-weight:700;cursor:pointer}
+.btn:disabled{opacity:.45;cursor:not-allowed}.btn.sm{width:auto;margin:0 0 0 8px;white-space:nowrap}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.ok{border-color:var(--mod);margin-bottom:14px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:14px}
+.stat small{color:var(--mut);display:block}.stat b{font-size:20px}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px;min-width:640px}
+th{text-align:left;color:var(--mut);font-size:12px;font-weight:600;padding:6px}
+td{padding:8px 6px;border-top:1px solid var(--line);vertical-align:top}
+tr.sel{background:color-mix(in srgb,var(--acc) 22%,transparent)}tbody tr{cursor:pointer}
+.b{display:inline-block;padding:2px 9px;border-radius:99px;font-size:12px;font-weight:700;color:#fff;white-space:nowrap}
+.b.crit{background:var(--crit)}.b.high{background:var(--high);color:#1b2126}.b.mod{background:var(--mod)}.b.done{background:var(--done)}
+.steps{display:flex;margin-top:12px}.step{flex:1;text-align:center;font-size:12px;color:var(--mut)}
+.step i{display:block;width:24px;height:24px;line-height:24px;font-style:normal;border-radius:50%;background:var(--line);margin:0 auto 4px;color:#1b2126}
+.step.on{color:var(--ink);font-weight:600}.step.on i{background:var(--acc)}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin:0 4px 0 10px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}.chips label{display:flex;gap:6px;align-items:center;border:1.5px solid var(--line);border-radius:10px;padding:6px 10px;font-size:13px;cursor:pointer}.chips input{accent-color:var(--ink)}
+.sc{display:grid;grid-template-columns:120px 1fr 200px;gap:10px;align-items:center;padding:5px 0;font-size:14px}.bar{height:10px;background:var(--line);border-radius:9px;overflow:hidden}.bar i{display:block;height:100%;background:var(--mod)}
+@media(max-width:560px){.sc{grid-template-columns:1fr;gap:4px}}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,30px);opacity:0;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;transition:.25s;pointer-events:none;max-width:90vw;z-index:9}#toast.show{opacity:1;transform:translate(-50%,0)}
+footer{margin-top:18px;font-size:13px}
+</style></head>
+<body><div class="road"></div>
+<div class="wrap">
+<header><h1>Pothole<span>Point</span></h1><p class="mut" style="margin:0">Report a pothole, get it ranked, and watch it get fixed. Bengaluru demo with sample data.</p><button class="btn sm" id="demo" style="margin:10px 0 0">Play guided demo</button></header>
+<nav class="tabs"><button class="on" data-t="rep">Report a pothole</button><button data-t="adm">Authority dashboard</button><button data-t="trk">Track a report</button></nav>
+
+<section id="rep"><div class="grid">
+<div class="card"><h2>Drop a pin on the pothole</h2><svg id="m1" class="map click" viewBox="0 0 600 380" role="img" aria-label="Schematic map of six wards"></svg><p id="loc" class="mut"></p><p class="mut" style="font-size:13px;margin:0">Tip: drop a pin close to an existing one and the system merges it as a repeat report.</p></div>
+<div class="card"><h2>Pothole details</h2>
+<span class="lb">How severe is it?</span>
+<div class="seg"><label><input type="radio" name="sev" value="1"><span>Low<small>small crack</small></span></label><label><input type="radio" name="sev" value="2" checked><span>Medium<small>5 to 10 cm deep</small></span></label><label><input type="radio" name="sev" value="3"><span>High<small>deep or dangerous</small></span></label></div>
+<label class="lb" for="rd">Road type</label><select id="rd"><option value="3">Busy main road</option><option value="2" selected>Connecting road</option><option value="1">Residential lane</option></select>
+<span class="lb">Extra risk factors</span><div class="chips"><label><input type="checkbox"> Near a school or hospital</label><label><input type="checkbox"> Waterlogged or hard to see</label><label><input type="checkbox"> Poor street lighting</label></div><label class="lb" for="note">Details (optional)</label><textarea id="note" rows="2" placeholder="Example: near the bus stop"></textarea>
+<label class="lb" for="ph">Photo (optional)</label><input type="file" id="ph" accept="image/*"><img id="pv" alt="Photo preview" hidden>
+<button id="go" class="btn" disabled>Submit report</button></div></div>
+<div id="res"></div></section>
+
+<section id="adm" hidden><div id="stats" class="stats"></div>
+<div class="grid"><div class="card"><h2>Live map, hotspots shaded red</h2><svg id="m2" class="map" viewBox="0 0 600 380" role="img" aria-label="Map of open reports by ward"></svg>
+<p class="mut" style="font-size:13px;margin:8px 0 0"><span class="dot" style="background:var(--crit);margin-left:0"></span>Critical<span class="dot" style="background:var(--high)"></span>High<span class="dot" style="background:var(--mod)"></span>Moderate<span class="dot" style="background:var(--done)"></span>Resolved. A number on a pin is the count of repeat reports.</p></div>
+<div class="card"><h2>How priority is scored</h2><p>Score = severity x 4 + road traffic x 3 + repeat reports x 2 (up to 5) + risk factors x 2. The highest score gets fixed first.</p><p class="mut">Critical is 22 or more (fix within 2 days), High is 14 to 21 (5 days), Moderate is below 14 (10 days). A report past its deadline is flagged Overdue. Each report goes to the ward department its pin falls in.</p><p class="mut">Click a pin or a row to highlight it. Change a status to see it update for the citizen.</p></div></div>
+<div class="card" style="margin-bottom:14px"><h2>Ward accountability scorecard</h2><div id="sc"></div></div><div class="card"><div class="row"><h2>Reports ranked by priority</h2><select id="fw" aria-label="Filter by ward"></select></div>
+<div class="scroll"><table><thead><tr><th>Rank</th><th>Report</th><th>Ward</th><th>Severity</th><th>Reports</th><th>Priority</th><th>Status</th></tr></thead><tbody id="tb"></tbody></table></div></div></section>
+
+<section id="trk" hidden><div class="card" style="margin-bottom:14px"><h2>Track a report</h2><div class="row" style="flex-wrap:nowrap"><input id="tq" type="text" placeholder="Report ID, for example PH-1005" aria-label="Report ID"><button class="btn sm" id="tg">Look up</button></div><p class="mut" style="margin:8px 0 0">Leave it empty to see the reports you submitted in this session.</p></div><div id="tl"></div></section>
+
+<div id="toast" role="status"></div><footer class="mut">Prototype with sample data and a schematic map (not to scale). <a href="#" id="rs" style="color:inherit">Reset demo</a></footer>
+</div>
+<script>
+const $=s=>document.querySelector(s),$$=s=>document.querySelectorAll(s);
+const W=[{id:'MAL',n:'Malleshwaram',p:[[20,20],[210,20],[200,185],[20,175]]},{id:'IND',n:'Indiranagar',p:[[210,20],[400,20],[395,190],[200,185]]},{id:'WHF',n:'Whitefield',p:[[400,20],[580,20],[580,180],[395,190]]},{id:'JAY',n:'Jayanagar',p:[[20,175],[200,185],[205,360],[20,360]]},{id:'KOR',n:'Koramangala',p:[[200,185],[395,190],[390,360],[205,360]]},{id:'HSR',n:'HSR Layout',p:[[395,190],[580,180],[580,360],[390,360]]}];
+const ST=['Reported','Acknowledged','In progress','Resolved'],SEV=['','Low','Medium','High'],LN={crit:'Critical',high:'High',mod:'Moderate'};
+const inPoly=(x,y,p)=>{let c=false;for(let i=0,j=p.length-1;i<p.length;j=i++){const[a,b]=p[i],[d,e]=p[j];if((b>y)!=(e>y)&&x<(d-a)*(y-b)/(e-b)+a)c=!c}return c};
+const wardAt=(x,y)=>W.find(w=>inPoly(x,y,w.p));
+const wn=id=>W.find(w=>w.id==id).n,dept=id=>wn(id)+' Ward Roads &amp; Maintenance';
+const score=r=>r.s*4+r.r*3+Math.min(r.c-1,5)*2+(r.k||0)*2,lvl=s=>s>=22?'crit':s>=14?'high':'mod';
+const sla=r=>({crit:2,high:5,mod:10}[lvl(score(r))]),over=r=>r.st<3&&r.a>sla(r),act=r=>({crit:'dispatch a crew within 2 days',high:'repair within 5 days',mod:'add to the next scheduled patch round'}[lvl(score(r))]);
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const badge=r=>{const s=score(r);return `<span class="b ${r.st>2?'done':lvl(s)}">${r.st>2?'Resolved':LN[lvl(s)]+' '+s}</span>`};
+const S=[[110,80,3,3,4,1,'Deep pothole near bus stop'],[150,130,1,1,1,3,'Small crack at junction'],[300,70,2,3,3,2,'Next to metro pillar'],[340,140,3,3,2,0,'Large pothole in right lane'],[480,80,3,3,5,0,'Water-filled, hard to see at night'],[520,130,2,2,1,1,'Edge of service road'],[90,260,2,2,2,0,'Outside school gate'],[150,310,1,1,1,3,'Patched last week'],[300,260,3,3,3,0,'Busy signal crossing'],[260,320,2,2,1,0,''],[480,250,2,3,2,1,'Near flyover ramp'],[520,320,1,1,1,3,'Residential lane'],[440,70,2,3,2,0,'Near tech park gate']];
+let nid=1014,draft=null,sel=null;
+const R=S.map((a,i)=>({id:'PH-'+(1001+i),x:a[0],y:a[1],s:a[2],r:a[3],c:a[4],st:a[5],note:a[6],w:wardAt(a[0],a[1]).id,k:[2,0,0,1,2,0,2,0,1,0,0,0,0][i],a:[9,2,12,3,14,5,6,15,8,4,7,1,4][i],mine:false}));
+
+function mapHTML(admin){
+ const cnt={};R.forEach(r=>{if(r.st<3)cnt[r.w]=(cnt[r.w]||0)+1});let h='';
+ W.forEach(w=>{const pts=w.p.map(q=>q.join(',')).join(' ');
+  h+=`<polygon points="${pts}" fill="var(--zone)" stroke="var(--card)" stroke-width="3"/>`;
+  if(admin&&cnt[w.id])h+=`<polygon points="${pts}" fill="var(--crit)" opacity="${Math.min(.1+cnt[w.id]*.08,.5)}" stroke="var(--card)" stroke-width="3"/>`;
+  h+=`<text x="${w.p.reduce((a,q)=>a+q[0],0)/4}" y="${Math.max(...w.p.map(q=>q[1]))-12}" font-size="13" font-weight="600" fill="var(--mut)" text-anchor="middle" style="pointer-events:none">${w.n}</text>`});
+ h+='<path d="M20,100 C200,125 400,75 580,100 M20,272 C200,250 400,292 580,272" fill="none" stroke="var(--card)" stroke-width="5" opacity=".85" style="pointer-events:none"/>';
+ R.forEach(r=>{const l=r.st>2?'done':lvl(score(r)),on=admin&&sel==r.id;
+  h+=`<g data-id="${r.id}" style="${admin?'cursor:pointer':'pointer-events:none'}"><circle cx="${r.x}" cy="${r.y}" r="${6+Math.min(r.c,5)}" fill="var(--${l})" stroke="${on?'var(--ink)':'#fff'}" stroke-width="${on?3.5:2}" opacity="${r.st>2?.55:1}"/>${r.c>1?`<text x="${r.x}" y="${r.y+4}" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">${r.c}</text>`:''}</g>`});
+ if(!admin&&draft)h+=`<circle cx="${draft.x}" cy="${draft.y}" r="9" fill="var(--acc)" stroke="var(--ink)" stroke-width="3"/>`;
+ return h}
+
+function admin(){
+ const f=$('#fw').value,open=R.filter(r=>r.st<3),cnt={};open.forEach(r=>cnt[r.w]=(cnt[r.w]||0)+1);
+ const hot=Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0];
+ $('#stats').innerHTML=[['Open reports',open.length],['Critical priority',open.filter(r=>lvl(score(r))=='crit').length],['Overdue',open.filter(over).length],['Hotspot ward',hot?wn(hot[0])+' ('+hot[1]+')':'None'],['Resolved',R.length-open.length]].map(([a,b])=>`<div class="card stat"><small>${a}</small><b>${b}</b></div>`).join('');
+ $('#sc').innerHTML=W.map(w=>{const a=R.filter(r=>r.w==w.id),o=a.filter(r=>r.st<3),od=o.filter(over).length,p=Math.round(100*(a.length-o.length)/a.length);return `<div class="sc"><span>${w.n}</span><div class="bar"><i style="width:${p}%"></i></div><span class="mut">${p}% fixed, ${o.length} open${od?', '+od+' overdue':''}</span></div>`}).join('');
+ const rows=R.filter(r=>f=='all'||r.w==f).sort((a,b)=>(a.st>2)-(b.st>2)||score(b)-score(a));
+ $('#tb').innerHTML=rows.map((r,i)=>`<tr data-id="${r.id}" class="${sel==r.id?'sel':''}"><td>${i+1}</td><td><b>${r.id}</b><br><small class="mut">${r.a} days open. ${esc(r.note)||'No details'}</small></td><td>${wn(r.w)}</td><td>${SEV[r.s]}</td><td>${r.c}</td><td>${badge(r)}${over(r)?' <span class="b crit">Overdue</span>':''}</td><td><select data-st="${r.id}" aria-label="Status of ${r.id}">${ST.map((x,k)=>`<option value="${k}" ${k==r.st?'selected':''}>${x}</option>`).join('')}</select></td></tr>`).join('')}
+
+const card=r=>`<div class="card" style="margin-bottom:12px"><div class="row"><b>${r.id}</b>${badge(r)}</div><p class="mut" style="margin:6px 0 0">${dept(r.w)}. ${r.c} report${r.c>1?'s':''} so far.</p><div class="steps">${ST.map((x,k)=>`<div class="step ${k<=r.st?'on':''}"><i>${k<=r.st?'&#10003;':''}</i>${x}</div>`).join('')}</div></div>`;
+function track(){
+ const q=$('#tq').value.trim().toUpperCase(),L=q?R.filter(r=>r.id==q):R.filter(r=>r.mine);
+ $('#tl').innerHTML=L.length?L.map(card).join(''):`<p class="mut">${q?'No report found with that ID. Check the ID and try again.':'You have not submitted a report yet. Submit one in the Report tab, or look up an ID such as PH-1005.'}</p>`}
+
+function render(){
+ $('#m1').innerHTML=mapHTML(0);$('#m2').innerHTML=mapHTML(1);
+ const w=draft&&wardAt(draft.x,draft.y);
+ $('#loc').innerHTML=w?`Pin placed in <b>${w.n}</b>. This goes to ${dept(w.id)}.`:'Click or tap the map to place a pin.';
+ $('#go').disabled=!draft;admin();track()}
+
+$('#m1').addEventListener('click',e=>{const b=e.currentTarget.getBoundingClientRect(),x=(e.clientX-b.left)*600/b.width,y=(e.clientY-b.top)*380/b.height;if(!wardAt(x,y))return;draft={x:Math.round(x),y:Math.round(y)};render()});
+$('#m2').addEventListener('click',e=>{const g=e.target.closest('[data-id]');if(g){sel=g.dataset.id;render()}});
+$('#tb').addEventListener('click',e=>{if(e.target.tagName=='SELECT')return;const tr=e.target.closest('tr');if(tr){sel=tr.dataset.id;render()}});
+$('#tb').addEventListener('change',e=>{const id=e.target.dataset.st;if(id){const v=+e.target.value;R.find(r=>r.id==id).st=v;render();toast('SMS sent to citizen: '+id+' is now "'+ST[v]+'"')}});
+$('#ph').onchange=e=>{const f=e.target.files[0];if(!f)return;$('#pv').src=URL.createObjectURL(f);$('#pv').hidden=false};
+$('#go').onclick=()=>{
+ const s=+$('[name=sev]:checked').value,rd=+$('#rd').value,k=$$('.chips input:checked').length,w=wardAt(draft.x,draft.y);
+ const d=R.find(r=>r.st<3&&r.w==w.id&&Math.hypot(r.x-draft.x,r.y-draft.y)<30);let r,msg;
+ if(d){d.c++;d.s=Math.max(d.s,s);d.r=Math.max(d.r,rd);d.k=Math.max(d.k||0,k);d.mine=true;r=d;msg=`Matched with existing report <b>${d.id}</b>. ${d.c} citizens have now reported it, so its priority went up.`}
+ else{r={id:'PH-'+nid++,x:draft.x,y:draft.y,s,r:rd,c:1,st:0,note:$('#note').value.trim(),w:w.id,k,a:0,mine:true};R.push(r);msg='New report created and sent to the ward department.'}
+ draft=null;$$('.chips input').forEach(i=>i.checked=false);$('#note').value='';$('#ph').value='';$('#pv').hidden=true;
+ $('#res').innerHTML=`<div class="card ok"><b>${r.id} submitted</b><p>${msg}</p><p style="margin:0">Routed to <b>${dept(r.w)}</b>. Priority: ${badge(r)}</p><p class="mut" style="margin:8px 0 0">Recommended action: ${act(r)}.</p></div>`;render();toast('Confirmation SMS sent to the citizen')};
+$$('.tabs button').forEach(b=>b.onclick=()=>{$$('.tabs button').forEach(x=>x.classList.toggle('on',x==b));$$('section').forEach(s=>s.hidden=s.id!=b.dataset.t);render()});
+$('#fw').innerHTML='<option value="all">All wards</option>'+W.map(w=>`<option value="${w.id}">${w.n}</option>`).join('');$('#fw').onchange=render;
+$('#tq').oninput=track;$('#tg').onclick=track;
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show'),3500)}
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+$('#demo').onclick=async()=>{const b=$('#demo'),tab=t=>$('[data-t='+t+']').click();b.disabled=true;
+ tab('rep');await sleep(900);draft={x:450,y:85};render();toast('Step 1: a citizen drops a pin near a known problem spot');await sleep(2400);
+ $('[name=sev][value="3"]').checked=true;$('#rd').value='3';$('#go').click();await sleep(300);toast('Step 2: the report is scored, matched and routed');await sleep(2800);
+ tab('adm');toast('Step 3: the authority sees it ranked by priority');await sleep(3200);
+ const id=R.filter(r=>r.mine).pop().id;R.find(r=>r.id==id).st=2;render();toast('Step 4: crew starts work. SMS sent: '+id+' is now "In progress"');await sleep(3200);
+ tab('trk');toast('Step 5: the citizen sees the live status');await sleep(2500);b.disabled=false};$('#rs').onclick=e=>{e.preventDefault();location.reload()};
+render();
+</script></body></html>
